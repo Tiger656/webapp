@@ -26,4 +26,8 @@ export abstract class BaseService<T> {
     await this.model.findByIdAndRemove(id);
     return `You removed a #${id} post`;
   }
+
+  async find(filter: any) {
+    return await this.model.find(filter);
+  }
 }
