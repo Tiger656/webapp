@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, ObjectId, Types } from 'mongoose';
+import { BaseModel } from 'src/base/base.model';
 
 export type PostDocument = HydratedDocument<Post>;
 
 @Schema()
-export class Post {
+export class Post extends BaseModel {
   @Prop()
   textContent: string;
 

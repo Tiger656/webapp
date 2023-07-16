@@ -1,21 +1,13 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-// import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import {
+  CreateUserDto,
+  createUserDtoValidator,
+} from 'src/user/dto/create-user.dto';
+import { AuthnGuard } from './guards/authn.guard';
+import { JwtPayloadFromRequest } from './decorators/jwtpayload-from-request.decorator';
+import { AuthzGuard } from './guards/authz.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -24,19 +16,21 @@ export class AuthController {
 
   @Get('/me')
   @ApiBearerAuth('Token')
-  //@UseGuards(AuthGuard('jwt'))  // 1. Убрать пароль, 2. сваггер внедряет токен авто, 3. Сделать через гарды
-  async me(@Req() req: Request) {
-    const jwt = req.headers['authorization'].replace('Bearer ', '');
-    return await this.authService.me(jwt);
+  @UseGuards(AuthnGuard)
+  async me(@JwtPayloadFromRequest() jwtPayload) {
+    ////Parameter 'jwtPayload' implicitly has an 'any' type, but a better type may be inferred from usage
+    return await this.authService.me(jwtPayload);
   }
 
   @Post('register')
   async register(@Body() userDto: CreateUserDto) {
+    createUserDtoValidator.parse(userDto);
     return await this.authService.register(userDto);
   }
 
   @Post('login')
   async login(@Body() userDto: CreateUserDto) {
+    createUserDtoValidator.parse(userDto);
     return await this.authService.login(userDto);
   }
 }

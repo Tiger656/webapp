@@ -1,33 +1,32 @@
-import { Model } from 'mongoose';
-import { CreateBaseDto } from './dto/create-base.dto';
-import { UpdateBaseDto } from './dto/update-base.dto copy';
+import { BaseRepository } from './base.repository';
 
-export abstract class BaseService<T> {
-  constructor(private model: Model<T>) {}
+export abstract class BaseService<TModel, TCreateDto> {
+  constructor(
+    private readonly baseRepository: BaseRepository<TModel, TCreateDto>,
+  ) {}
 
-  async create(createBaseDto: CreateBaseDto) {
-    const createdDcoument = new this.model(createBaseDto);
-    return await createdDcoument.save();
+  async create(baseDto: TCreateDto) {
+    return await this.baseRepository.create(baseDto);
   }
 
   async findAll() {
-    return await this.model.find();
+    return await this.baseRepository.findAll();
   }
 
   async findOne(id: string) {
-    return await this.model.findById(id);
+    return await this.baseRepository.findOne(id);
   }
 
-  async update(id: string, updateBaseDto: CreateBaseDto) {
-    return await this.model.findByIdAndUpdate(id, updateBaseDto);
+  async update(id: string, createDto: TCreateDto) {
+    return await this.baseRepository.update(id, createDto);
   }
 
   async remove(id: string) {
-    await this.model.findByIdAndRemove(id);
+    await this.baseRepository.remove(id);
     return `You removed a #${id} post`;
   }
 
   async find(filter: any) {
-    return await this.model.find(filter);
+    return await this.baseRepository.find(filter);
   }
 }
